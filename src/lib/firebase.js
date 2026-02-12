@@ -56,3 +56,20 @@ export async function updateConversation(conversationId, messages, status) {
     console.warn("Firebase: impossibile aggiornare conversazione", err);
   }
 }
+
+/**
+ * Salva i dati di contatto del lead sulla conversazione.
+ */
+export async function saveLeadContact(conversationId, email, phone) {
+  if (!db || !conversationId) return;
+  try {
+    await updateDoc(doc(db, "conversations", conversationId), {
+      email,
+      phone,
+      status: "lead_captured",
+      updatedAt: serverTimestamp(),
+    });
+  } catch (err) {
+    console.warn("Firebase: impossibile salvare contatto", err);
+  }
+}

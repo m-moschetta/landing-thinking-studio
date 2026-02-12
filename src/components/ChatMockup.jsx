@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { createConversation, updateConversation } from "../lib/firebase";
+import { createConversation, updateConversation, saveLeadContact } from "../lib/firebase";
 
 const INITIAL_MESSAGE = {
   role: "assistant",
@@ -101,8 +101,8 @@ export default function ChatMockup() {
         }),
       });
 
-      // Aggiorna anche Firebase con i dati di contatto
-      await updateConversation(convId, messages, "lead_captured");
+      // Salva email + telefono su Firebase
+      await saveLeadContact(convId, email.trim(), phone.trim());
     } catch {
       // Il lead è già loggato server-side, non blocchiamo l'UX
     }
