@@ -69,9 +69,10 @@ export default function Landing() {
           .grid-2{grid-template-columns:1fr!important}
           .grid-4{grid-template-columns:1fr 1fr!important}
           .hero-flex{flex-direction:column!important;align-items:flex-start!important}
-          .hero-layout{flex-direction:column!important;align-items:stretch!important}
-          .hero-chat-wrap{align-self:center!important;margin-top:32px!important}
+          .hero-layout{flex-direction:column!important;align-items:flex-start!important}
           .nav-inner{padding:12px 16px!important}
+          .cta-layout{flex-direction:column!important;align-items:stretch!important}
+          .cta-chat-wrap{margin-top:40px!important}
           .stat-grid{grid-template-columns:1fr 1fr!important}
         }
       `}</style>
@@ -103,71 +104,65 @@ export default function Landing() {
         </div>
       </nav>
 
-      {/* HERO con Chat Integrata */}
+      {/* HERO */}
       <section style={{ padding: "80px 32px 60px", borderBottom: "3px solid #000" }}>
         <div style={{ maxWidth: 1100, margin: "0 auto" }}>
           <div className="sans" style={{ fontSize: 12, letterSpacing: 2, color: "#FF2D00", fontWeight: 700, marginBottom: 32 }}>
             [ Per aziende che fatturano fino a &euro;5M ]
           </div>
-
-          <div className="hero-layout" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 48 }}>
-            {/* Colonna sinistra — testo hero */}
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <h1
-                className="hero-big"
-                style={{
-                  fontSize: 68,
-                  fontFamily: "'Playfair Display',Georgia,serif",
-                  fontWeight: 700,
-                  lineHeight: 1,
-                  letterSpacing: "-0.02em",
-                  marginBottom: 32,
-                  animation: "slideUp 0.6s ease-out",
-                }}
-              >
-                Il tuo business
-                <br />
-                merita software
-                <br />
-                <span
-                  style={{
-                    fontStyle: "italic",
-                    color: "#FF2D00",
-                    textDecoration: "underline",
-                    textDecorationThickness: 4,
-                    textUnderlineOffset: 8,
-                  }}
-                >
-                  che funziona davvero.
-                </span>
-              </h1>
-              <p
-                className="sans"
-                style={{
-                  fontSize: 16,
-                  lineHeight: 1.8,
-                  maxWidth: 500,
-                  color: "#555",
-                  marginBottom: 32,
-                  animation: "slideUp 0.6s ease-out 0.2s both",
-                }}
-              >
-                Sviluppiamo soluzioni digitali su misura per la tua impresa.
-                <br />
-                Integriamo i tuoi dati, automatizziamo i tuoi processi.
-                <br />
-                <strong style={{ color: "#1a1a1a" }}>Veloce. Accessibile. Senza giri di parole.</strong>
-              </p>
-              <div style={{ display: "flex", gap: 12, animation: "slideUp 0.6s ease-out 0.3s both", flexWrap: "wrap" }}>
-                <a href={CAL_LINK} target="_blank" rel="noopener noreferrer" className="brutal-btn">
-                  Prenota una chiamata &uarr;
-                </a>
-              </div>
-            </div>
-
-            {/* Colonna destra — Chat mockup integrata */}
-            <div className="hero-chat-wrap" style={{ flexShrink: 0, animation: "slideUp 0.6s ease-out 0.3s both" }}>
-              <ChatMockup />
+          <h1
+            className="hero-big"
+            style={{
+              fontSize: 72,
+              fontFamily: "'Playfair Display',Georgia,serif",
+              fontWeight: 700,
+              lineHeight: 1,
+              letterSpacing: "-0.02em",
+              marginBottom: 40,
+              maxWidth: 900,
+              animation: "slideUp 0.6s ease-out",
+            }}
+          >
+            Il tuo business
+            <br />
+            merita software
+            <br />
+            <span
+              style={{
+                fontStyle: "italic",
+                color: "#FF2D00",
+                textDecoration: "underline",
+                textDecorationThickness: 4,
+                textUnderlineOffset: 8,
+              }}
+            >
+              che funziona davvero.
+            </span>
+          </h1>
+          <div className="hero-flex" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", gap: 40 }}>
+            <p
+              className="sans"
+              style={{
+                fontSize: 16,
+                lineHeight: 1.8,
+                maxWidth: 500,
+                color: "#555",
+                animation: "slideUp 0.6s ease-out 0.2s both",
+              }}
+            >
+              Sviluppiamo soluzioni digitali su misura per la tua impresa.
+              <br />
+              Integriamo i tuoi dati, automatizziamo i tuoi processi.
+              <br />
+              <strong style={{ color: "#1a1a1a" }}>Veloce. Accessibile. Senza giri di parole.</strong>
+            </p>
+            <div style={{ display: "flex", gap: 12, animation: "slideUp 0.6s ease-out 0.3s both", flexShrink: 0, flexWrap: "wrap" }}>
+              <a href={CAL_LINK} target="_blank" rel="noopener noreferrer" className="brutal-btn">
+                Prenota una chiamata &uarr;
+              </a>
+              <a href="#parlaci" className="brutal-btn-outline">
+                Raccontaci il progetto &darr;
+              </a>
             </div>
           </div>
         </div>
@@ -288,23 +283,52 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* CHIUSURA */}
-      <section style={{ padding: "100px 32px", borderBottom: "3px solid #000", textAlign: "center" }}>
-        <div style={{ maxWidth: 700, margin: "0 auto" }}>
-          <h2 className="display" style={{ fontSize: 56, fontStyle: "italic", lineHeight: 1.05, marginBottom: 24 }}>
-            Pronto a lavorare
-            <br />
-            <span style={{ color: "#FF2D00" }}>meglio</span>?
-          </h2>
-          <p className="sans" style={{ fontSize: 16, color: "#666", lineHeight: 1.8, marginBottom: 40 }}>
-            Raccontaci della tua azienda. Ti proponiamo una soluzione concreta
-            <br />
-            in meno di 48 ore. Nessun impegno, nessun costo nascosto.
-          </p>
-          <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
-            <a href={CAL_LINK} target="_blank" rel="noopener noreferrer" className="brutal-btn" style={{ fontSize: 16, padding: "20px 44px" }}>
-              Prenota una chiamata gratuita &uarr;
-            </a>
+      {/* CONVERSIONE — Chat + CTA */}
+      <section id="parlaci" style={{ padding: "80px 32px", borderBottom: "3px solid #000", background: "#FFFEF2" }}>
+        <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+          <div className="cta-layout" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 60 }}>
+            {/* Colonna sinistra — copy di conversione */}
+            <div style={{ flex: 1, minWidth: 0, paddingTop: 8 }}>
+              <div className="sans" style={{ fontSize: 12, letterSpacing: 2, color: "#FF2D00", fontWeight: 700, marginBottom: 20 }}>
+                [ Inizia da qui ]
+              </div>
+              <h2 className="display" style={{ fontSize: 52, fontStyle: "italic", lineHeight: 1.05, marginBottom: 24 }}>
+                Pronto a lavorare
+                <br />
+                <span style={{ color: "#FF2D00" }}>meglio</span>?
+              </h2>
+              <p className="sans" style={{ fontSize: 16, color: "#555", lineHeight: 1.8, marginBottom: 32, maxWidth: 420 }}>
+                Raccontaci della tua azienda direttamente qui. Ti facciamo qualche domanda per capire cosa ti serve e ti proponiamo una soluzione concreta
+                <strong style={{ color: "#1a1a1a" }}> entro 48 ore</strong>.
+              </p>
+
+              {/* Trust signals */}
+              <div style={{ display: "flex", flexDirection: "column", gap: 16, marginBottom: 40 }}>
+                {[
+                  "Nessun impegno, nessun costo nascosto",
+                  "Ti ricontattiamo entro 24 ore",
+                  "Preventivo gratuito su misura",
+                ].map((t, i) => (
+                  <div key={i} className="sans" style={{ display: "flex", alignItems: "center", gap: 12, fontSize: 14, color: "#333" }}>
+                    <span style={{ width: 20, height: 20, background: "#00FF57", border: "2px solid #000", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 900, flexShrink: 0 }}>&check;</span>
+                    {t}
+                  </div>
+                ))}
+              </div>
+
+              {/* Alternativa: Calendly */}
+              <div style={{ borderTop: "3px solid #000", paddingTop: 24 }}>
+                <p className="sans" style={{ fontSize: 13, color: "#888", marginBottom: 12 }}>Preferisci parlare a voce?</p>
+                <a href={CAL_LINK} target="_blank" rel="noopener noreferrer" className="brutal-btn" style={{ fontSize: 14, padding: "14px 28px" }}>
+                  Prenota una chiamata gratuita &uarr;
+                </a>
+              </div>
+            </div>
+
+            {/* Colonna destra — Chat */}
+            <div className="cta-chat-wrap" style={{ flexShrink: 0 }}>
+              <ChatMockup />
+            </div>
           </div>
         </div>
       </section>
