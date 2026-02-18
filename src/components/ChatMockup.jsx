@@ -48,12 +48,6 @@ export default function ChatMockup() {
     setLoading(true);
 
     try {
-      let currentConvId = convId;
-      if (!currentConvId) {
-        currentConvId = await createConversation(updated);
-        setConvId(currentConvId);
-      }
-
       const resp = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -69,13 +63,25 @@ export default function ChatMockup() {
       setMessages(withReply);
 
       const isDone = text.includes("ricontatter") || updated.length > 12;
-      await updateConversation(
-        currentConvId,
-        withReply,
-        isDone ? "completed" : "active"
-      );
-
       if (isDone) setFinished(true);
+
+      // Firebase in background — non blocca la chat
+      (async () => {
+        try {
+          let currentConvId = convId;
+          if (!currentConvId) {
+            currentConvId = await createConversation(updated);
+            setConvId(currentConvId);
+          }
+          await updateConversation(
+            currentConvId,
+            withReply,
+            isDone ? "completed" : "active"
+          );
+        } catch {
+          // Firebase non critico
+        }
+      })();
     } catch {
       setMessages((prev) => [
         ...prev,
