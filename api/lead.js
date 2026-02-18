@@ -88,7 +88,7 @@ export default async function handler(req, res) {
     })
   );
 
-  // Genera riassunto con Grok e manda su Telegram in parallelo al response
+  // Genera riassunto con Grok, poi manda su Telegram
   const summary = await summarizeWithGrok(messages);
   await sendTelegram(email, phone, summary, messages?.length || 0);
 
