@@ -107,9 +107,6 @@ export default function Landing() {
       {/* HERO */}
       <section style={{ padding: "80px 32px 60px", borderBottom: "3px solid #000" }}>
         <div style={{ maxWidth: 1100, margin: "0 auto" }}>
-          <div className="sans" style={{ fontSize: 12, letterSpacing: 2, color: "#FF2D00", fontWeight: 700, marginBottom: 32 }}>
-            [ Per aziende che fatturano fino a &euro;5M ]
-          </div>
           <h1
             className="hero-big"
             style={{
@@ -167,6 +164,21 @@ export default function Landing() {
           </div>
         </div>
       </section>
+
+      {/* NUMERI */}
+      <div className="stat-grid" style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", borderBottom: "3px solid #000" }}>
+        {[
+          { n: "2–4", l: "settimane" },
+          { n: "70%", l: "risparmio sui costi" },
+          { n: "100%", l: "su misura" },
+          { n: "24 ore", l: "per ricontattarti" },
+        ].map((s, i) => (
+          <div key={i} style={{ padding: "28px 24px", textAlign: "center", borderRight: i < 3 ? "3px solid #000" : "none" }}>
+            <div className="display" style={{ fontSize: 36, fontStyle: "italic", color: "#FF2D00" }}>{s.n}</div>
+            <div className="sans" style={{ fontSize: 13, marginTop: 6, color: "#666" }}>{s.l}</div>
+          </div>
+        ))}
+      </div>
 
       {/* PROBLEMI */}
       <section style={{ borderBottom: "3px solid #000" }}>
