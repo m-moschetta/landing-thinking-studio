@@ -6,6 +6,8 @@ const SYSTEM_PROMPT = `Sei l'assistente commerciale di Thinking Studio, un'agenz
 5. Quali integrazioni servirebbero.
 Sii diretto, amichevole e chiaro. Parla sempre in italiano semplice, senza inglesismi. Fai UNA domanda alla volta. Quando hai raccolto abbastanza info (dopo 4-6 scambi), ringrazia e di' che il team li ricontatterà entro 24h.`;
 
+import { chatCompletion } from "./_ai.js";
+
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
@@ -23,21 +25,14 @@ export default async function handler(req, res) {
   }
 
   try {
-    const response = await fetch("https://api.x.ai/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        model: "grok-4-1-fast-non-reasoning",
-        messages: [
-          { role: "system", content: SYSTEM_PROMPT },
-          ...messages,
-        ],
-        max_tokens: 1000,
-        temperature: 0.7,
-      }),
+    const response = await chatCompletion(apiKey, {
+      model: "grok-4-1-fast-non-reasoning",
+      messages: [
+        { role: "system", content: SYSTEM_PROMPT },
+        ...messages,
+      ],
+      max_tokens: 1000,
+      temperature: 0.7,
     });
 
     if (!response.ok) {

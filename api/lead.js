@@ -1,3 +1,5 @@
+import { chatCompletion } from "./_ai.js";
+
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
 
@@ -10,25 +12,18 @@ async function summarizeWithGrok(messages) {
       .map((m) => `${m.role === "user" ? "Cliente" : "Assistente"}: ${m.content}`)
       .join("\n");
 
-    const resp = await fetch("https://api.x.ai/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        model: "grok-4-1-fast-non-reasoning",
-        messages: [
-          {
-            role: "system",
-            content:
-              "Riassumi questa conversazione commerciale in 3-5 righe in italiano. Evidenzia: tipo di azienda, cosa cercano, budget se menzionato, urgenza. Sii conciso e diretto.",
-          },
-          { role: "user", content: conversation },
-        ],
-        max_tokens: 300,
-        temperature: 0.3,
-      }),
+    const resp = await chatCompletion(apiKey, {
+      model: "grok-4-1-fast-non-reasoning",
+      messages: [
+        {
+          role: "system",
+          content:
+            "Riassumi questa conversazione commerciale in 3-5 righe in italiano. Evidenzia: tipo di azienda, cosa cercano, budget se menzionato, urgenza. Sii conciso e diretto.",
+        },
+        { role: "user", content: conversation },
+      ],
+      max_tokens: 300,
+      temperature: 0.3,
     });
 
     const data = await resp.json();
