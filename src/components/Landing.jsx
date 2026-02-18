@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import ChatMockup from "./ChatMockup";
 
-const CAL_LINK = "https://calendly.com/thinkingstudio";
+const CAL_LINK = "https://fantastical.app/mario-moschetta/thinking-intro-meeting";
 
 export default function Landing() {
   const [time, setTime] = useState(new Date());
@@ -238,6 +238,66 @@ export default function Landing() {
                 <p className="sans" style={{ fontSize: 14, lineHeight: 1.7, color: "inherit", opacity: 0.65 }}>{f.desc}</p>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* SOFTWARE FOCALIZZATO */}
+      <section style={{ borderBottom: "3px solid #000", background: "#FFFEF2" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", minHeight: 0 }} className="grid-2">
+          {/* Colonna sinistra — copy */}
+          <div style={{ padding: "60px 40px", borderRight: "3px solid #000" }}>
+            <div className="sans" style={{ fontSize: 12, letterSpacing: 2, color: "#FF2D00", fontWeight: 700, marginBottom: 16 }}>[ Offerta — Strumento Focalizzato ]</div>
+            <h2 className="display" style={{ fontSize: 48, fontStyle: "italic", lineHeight: 1.05, marginBottom: 24 }}>
+              Un problema.
+              <br />
+              Risolto.
+              <br />
+              <span style={{ color: "#FF2D00" }}>Basta.</span>
+            </h2>
+            <p className="sans" style={{ fontSize: 15, lineHeight: 1.85, color: "#555", maxWidth: 420, marginBottom: 32 }}>
+              Non sempre serve un sistema complesso. A volte hai <strong style={{ color: "#1a1a1a" }}>un singolo problema</strong> che vi fa perdere ore ogni settimana — e nessuno sa come risolverlo.
+            </p>
+            <p className="sans" style={{ fontSize: 15, lineHeight: 1.85, color: "#555", maxWidth: 420, marginBottom: 40 }}>
+              Ti costruiamo uno strumento digitale su misura che risolve esattamente <em>quello</em>. Niente feature inutili, niente abbonamenti mensili. <strong style={{ color: "#1a1a1a" }}>Solo la soluzione, in mano tua.</strong>
+            </p>
+            {/* Esempi casi d'uso */}
+            <div className="sans" style={{ fontSize: 12, letterSpacing: 2, color: "#999", fontWeight: 700, marginBottom: 16 }}>ESEMPI REALI</div>
+            {[
+              "Raccogliere e organizzare la knowledge interna in 1 mese invece che in 1 anno",
+              "Automatizzare un report che compilate a mano ogni lunedì mattina",
+              "Un mini-gestionale che fa esattamente quello che il tuo gestionale attuale non fa",
+            ].map((ex, i) => (
+              <div key={i} className="sans" style={{ display: "flex", alignItems: "flex-start", gap: 12, fontSize: 14, color: "#333", marginBottom: 12 }}>
+                <span style={{ width: 20, height: 20, background: "#000", color: "#FFFEF2", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, fontWeight: 900, flexShrink: 0, marginTop: 2 }}>→</span>
+                {ex}
+              </div>
+            ))}
+          </div>
+
+          {/* Colonna destra — scheda offerta */}
+          <div style={{ padding: "60px 40px", display: "flex", flexDirection: "column", justifyContent: "center" }}>
+            <div style={{ border: "3px solid #000", background: "#000", color: "#FFFEF2", padding: "40px 36px" }}>
+              <div className="sans" style={{ fontSize: 12, letterSpacing: 2, color: "#FF2D00", fontWeight: 700, marginBottom: 24 }}>COSA INCLUDE</div>
+              {[
+                { label: "FOCUS", val: "1 problema, 1 soluzione" },
+                { label: "TEMPI", val: "2–4 settimane" },
+                { label: "INVESTIMENTO", val: "a partire da €10.000" },
+                { label: "PROPRIETÀ", val: "Tuo per sempre" },
+                { label: "ASSISTENZA", val: "Ti affianchiamo nel lancio" },
+              ].map((row, i) => (
+                <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", paddingBottom: 18, marginBottom: 18, borderBottom: i < 4 ? "1px solid #333" : "none" }}>
+                  <span className="sans" style={{ fontSize: 11, letterSpacing: 1.5, color: "#888", fontWeight: 700 }}>{row.label}</span>
+                  <span className="sans" style={{ fontSize: 14, fontWeight: 600, color: "#FFFEF2" }}>{row.val}</span>
+                </div>
+              ))}
+              <a href={CAL_LINK} target="_blank" rel="noopener noreferrer" className="brutal-btn" style={{ marginTop: 24, display: "block", textAlign: "center", background: "#FF2D00", borderColor: "#FF2D00", fontSize: 14, padding: "14px 24px" }}>
+                Raccontaci il tuo problema &uarr;
+              </a>
+            </div>
+            <p className="sans" style={{ fontSize: 12, color: "#aaa", marginTop: 16, lineHeight: 1.6 }}>
+              Non sei sicuro se è il caso? Descrivici il problema nella chat qui sotto — ti diciamo in 24 ore se possiamo risolverlo.
+            </p>
           </div>
         </div>
       </section>
