@@ -47,13 +47,13 @@ export default function ChatMockup() {
     setInput("");
     setLoading(true);
 
-    let currentConvId = convId;
-    if (!currentConvId) {
-      currentConvId = await createConversation(updated);
-      setConvId(currentConvId);
-    }
-
     try {
+      let currentConvId = convId;
+      if (!currentConvId) {
+        currentConvId = await createConversation(updated);
+        setConvId(currentConvId);
+      }
+
       const resp = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -81,9 +81,9 @@ export default function ChatMockup() {
         ...prev,
         { role: "assistant", content: "Errore di connessione. Riprova." },
       ]);
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   const submitLead = async () => {

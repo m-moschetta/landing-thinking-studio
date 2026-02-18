@@ -168,21 +168,6 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* NUMERI */}
-      <div className="stat-grid" style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", borderBottom: "3px solid #000" }}>
-        {[
-          { n: "2–4", l: "settimane" },
-          { n: "70%", l: "risparmio sui costi" },
-          { n: "100%", l: "su misura" },
-          { n: "24 ore", l: "per ricontattarti" },
-        ].map((s, i) => (
-          <div key={i} style={{ padding: "28px 24px", textAlign: "center", borderRight: i < 3 ? "3px solid #000" : "none" }}>
-            <div className="display" style={{ fontSize: 36, fontStyle: "italic", color: "#FF2D00" }}>{s.n}</div>
-            <div className="sans" style={{ fontSize: 13, marginTop: 6, color: "#666" }}>{s.l}</div>
-          </div>
-        ))}
-      </div>
-
       {/* PROBLEMI */}
       <section style={{ borderBottom: "3px solid #000" }}>
         <div style={{ display: "grid", gridTemplateColumns: "300px 1fr", minHeight: 400 }} className="grid-2">
@@ -282,7 +267,7 @@ export default function Landing() {
               {[
                 { label: "FOCUS", val: "1 problema, 1 soluzione" },
                 { label: "TEMPI", val: "2–4 settimane" },
-                { label: "INVESTIMENTO", val: "a partire da €10.000" },
+                { label: "INVESTIMENTO", val: "a partire da €5.000" },
                 { label: "PROPRIETÀ", val: "Tuo per sempre" },
                 { label: "ASSISTENZA", val: "Ti affianchiamo nel lancio" },
               ].map((row, i) => (
@@ -361,20 +346,6 @@ export default function Landing() {
                 Raccontaci della tua azienda direttamente qui. Ti facciamo qualche domanda per capire cosa ti serve e ti proponiamo una soluzione concreta
                 <strong style={{ color: "#1a1a1a" }}> entro 48 ore</strong>.
               </p>
-
-              {/* Trust signals */}
-              <div style={{ display: "flex", flexDirection: "column", gap: 16, marginBottom: 40 }}>
-                {[
-                  "Nessun impegno, nessun costo nascosto",
-                  "Ti ricontattiamo entro 24 ore",
-                  "Preventivo gratuito su misura",
-                ].map((t, i) => (
-                  <div key={i} className="sans" style={{ display: "flex", alignItems: "center", gap: 12, fontSize: 14, color: "#333" }}>
-                    <span style={{ width: 20, height: 20, background: "#00FF57", border: "2px solid #000", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 900, flexShrink: 0 }}>&check;</span>
-                    {t}
-                  </div>
-                ))}
-              </div>
 
               {/* Alternativa: Calendly */}
               <div style={{ borderTop: "3px solid #000", paddingTop: 24 }}>
