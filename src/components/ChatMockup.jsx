@@ -47,10 +47,11 @@ export default function ChatMockup() {
     });
   }, [messages, finished]);
 
-  const sendMessage = async () => {
-    if (!input.trim() || loading) return;
+  const sendMessage = async (text) => {
+    const content = (text ?? input).trim();
+    if (!content || loading) return;
 
-    const userMsg = { role: "user", content: input.trim() };
+    const userMsg = { role: "user", content };
     const updated = [...messages, userMsg];
     setMessages(updated);
     setInput("");
@@ -72,10 +73,15 @@ export default function ChatMockup() {
       const withReply = [...updated, { role: "assistant", content: clean }];
 
       setMessages(withReply);
-      setSuggestions(newSuggestions);
 
-      const isDone = clean.includes("ricontatter") || updated.length > 12;
-      if (isDone) { setFinished(true); setSuggestions([]); }
+      // Il form lead appare SOLO quando l'AI dice "ricontatter" — mai prima
+      const isDone = clean.includes("ricontatter");
+      if (isDone) {
+        setFinished(true);
+        setSuggestions([]);
+      } else {
+        setSuggestions(newSuggestions);
+      }
 
       // Firebase in background — non blocca la chat
       (async () => {
@@ -238,42 +244,7 @@ export default function ChatMockup() {
           {suggestions.map((s, i) => (
             <button
               key={i}
-              onClick={() => {
-                setInput(s);
-                setSuggestions([]);
-                setTimeout(() => {
-                  setInput("");
-                  const userMsg = { role: "user", content: s };
-                  const updated = [...messages, userMsg];
-                  setMessages(updated);
-                  setSuggestions([]);
-                  setLoading(true);
-                  fetch("/api/chat", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ messages: updated.map((m) => ({ role: m.role, content: m.content })) }),
-                  })
-                    .then((r) => r.json())
-                    .then((data) => {
-                      const raw = data.content || "Errore. Riprova tra poco.";
-                      const { clean, suggestions: newS } = parseSuggestions(raw);
-                      const withReply = [...updated, { role: "assistant", content: clean }];
-                      setMessages(withReply);
-                      setSuggestions(newS);
-                      const isDone = clean.includes("ricontatter") || updated.length > 12;
-                      if (isDone) { setFinished(true); setSuggestions([]); }
-                      (async () => {
-                        try {
-                          let cid = convId;
-                          if (!cid) { cid = await createConversation(updated); setConvId(cid); }
-                          await updateConversation(cid, withReply, isDone ? "completed" : "active");
-                        } catch {}
-                      })();
-                    })
-                    .catch(() => setMessages((prev) => [...prev, { role: "assistant", content: "Errore di connessione. Riprova." }]))
-                    .finally(() => setLoading(false));
-                }, 0);
-              }}
+              onClick={() => sendMessage(s)}
               style={{
                 background: "#fff",
                 border: "2px solid #000",
@@ -365,7 +336,7 @@ export default function ChatMockup() {
             <input
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+              onKeyDown={(e) => e.key === "Enter" && sendMessage(undefined)}
               placeholder="Scrivi qui..."
               style={{ ...inputStyle, flex: 1 }}
             />
