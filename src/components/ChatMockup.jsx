@@ -19,8 +19,17 @@ const inputStyle = {
   outline: "none",
 };
 
+function parseSuggestions(text) {
+  const match = text.match(/\[SUGGERIMENTI:\s*([^\]]+)\]/);
+  if (!match) return { clean: text, suggestions: [] };
+  const suggestions = match[1].split("|").map((s) => s.trim()).filter(Boolean);
+  const clean = text.replace(/\[SUGGERIMENTI:[^\]]+\]/, "").trim();
+  return { clean, suggestions };
+}
+
 export default function ChatMockup() {
   const [messages, setMessages] = useState([INITIAL_MESSAGE]);
+  const [suggestions, setSuggestions] = useState([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [finished, setFinished] = useState(false);
@@ -45,6 +54,7 @@ export default function ChatMockup() {
     const updated = [...messages, userMsg];
     setMessages(updated);
     setInput("");
+    setSuggestions([]);
     setLoading(true);
 
     try {
@@ -57,13 +67,15 @@ export default function ChatMockup() {
       });
 
       const data = await resp.json();
-      const text = data.content || "Errore. Riprova tra poco.";
-      const withReply = [...updated, { role: "assistant", content: text }];
+      const raw = data.content || "Errore. Riprova tra poco.";
+      const { clean, suggestions: newSuggestions } = parseSuggestions(raw);
+      const withReply = [...updated, { role: "assistant", content: clean }];
 
       setMessages(withReply);
+      setSuggestions(newSuggestions);
 
-      const isDone = text.includes("ricontatter") || updated.length > 12;
-      if (isDone) setFinished(true);
+      const isDone = clean.includes("ricontatter") || updated.length > 12;
+      if (isDone) { setFinished(true); setSuggestions([]); }
 
       // Firebase in background — non blocca la chat
       (async () => {
@@ -212,6 +224,75 @@ export default function ChatMockup() {
           </div>
         )}
       </div>
+
+      {/* Suggestion chips */}
+      {suggestions.length > 0 && !finished && (
+        <div style={{
+          padding: "6px 10px 2px",
+          display: "flex",
+          flexWrap: "wrap",
+          gap: 6,
+          borderTop: "2px solid #000",
+          background: "#FFFEF2",
+        }}>
+          {suggestions.map((s, i) => (
+            <button
+              key={i}
+              onClick={() => {
+                setInput(s);
+                setSuggestions([]);
+                setTimeout(() => {
+                  setInput("");
+                  const userMsg = { role: "user", content: s };
+                  const updated = [...messages, userMsg];
+                  setMessages(updated);
+                  setSuggestions([]);
+                  setLoading(true);
+                  fetch("/api/chat", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ messages: updated.map((m) => ({ role: m.role, content: m.content })) }),
+                  })
+                    .then((r) => r.json())
+                    .then((data) => {
+                      const raw = data.content || "Errore. Riprova tra poco.";
+                      const { clean, suggestions: newS } = parseSuggestions(raw);
+                      const withReply = [...updated, { role: "assistant", content: clean }];
+                      setMessages(withReply);
+                      setSuggestions(newS);
+                      const isDone = clean.includes("ricontatter") || updated.length > 12;
+                      if (isDone) { setFinished(true); setSuggestions([]); }
+                      (async () => {
+                        try {
+                          let cid = convId;
+                          if (!cid) { cid = await createConversation(updated); setConvId(cid); }
+                          await updateConversation(cid, withReply, isDone ? "completed" : "active");
+                        } catch {}
+                      })();
+                    })
+                    .catch(() => setMessages((prev) => [...prev, { role: "assistant", content: "Errore di connessione. Riprova." }]))
+                    .finally(() => setLoading(false));
+                }, 0);
+              }}
+              style={{
+                background: "#fff",
+                border: "2px solid #000",
+                padding: "4px 10px",
+                fontSize: 12,
+                fontFamily: "'DM Sans',sans-serif",
+                fontWeight: 600,
+                cursor: "pointer",
+                color: "#000",
+                transition: "background 0.1s",
+              }}
+              onMouseEnter={(e) => { e.target.style.background = "#FF2D00"; e.target.style.color = "#fff"; }}
+              onMouseLeave={(e) => { e.target.style.background = "#fff"; e.target.style.color = "#000"; }}
+            >
+              {s}
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* Bottom area */}
       <div style={{ padding: 10, borderTop: "4px solid #000" }}>
