@@ -7,6 +7,13 @@ const INITIAL_MESSAGE = {
     "Ciao! Sono l'assistente di Thinking Studio. Dimmi: che tipo di gestionale stai cercando? Cosa deve fare per la tua azienda?",
 };
 
+const INITIAL_SUGGESTIONS = [
+  "Gestione clienti e appuntamenti",
+  "Magazzino e ordini",
+  "Fatturazione e contabilità",
+  "Gestione progetti e team",
+];
+
 const inputStyle = {
   width: "100%",
   background: "#fff",
@@ -28,7 +35,8 @@ function parseSuggestions(text) {
 }
 
 export default function ChatGuided() {
-  const [messages, setMessages] = useState([INITIAL_MESSAGE]);
+  const [started, setStarted] = useState(false);
+  const [messages, setMessages] = useState([]);
   const [suggestions, setSuggestions] = useState([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -39,6 +47,12 @@ export default function ChatGuided() {
   const [phone, setPhone] = useState("");
   const [convId, setConvId] = useState(null);
   const scrollRef = useRef(null);
+
+  const startChat = () => {
+    setStarted(true);
+    setMessages([INITIAL_MESSAGE]);
+    setSuggestions(INITIAL_SUGGESTIONS);
+  };
 
   useEffect(() => {
     scrollRef.current?.scrollTo({
@@ -173,7 +187,7 @@ export default function ChatGuided() {
               width: 8,
               height: 8,
               borderRadius: "50%",
-              background: "#00FF57",
+              background: started ? "#00FF57" : "rgba(255,255,255,0.4)",
               display: "inline-block",
             }}
           />
@@ -187,170 +201,246 @@ export default function ChatGuided() {
         </span>
       </div>
 
-      {/* Messages */}
-      <div
-        ref={scrollRef}
-        style={{
-          flex: 1,
-          overflowY: "auto",
-          padding: 16,
-          display: "flex",
-          flexDirection: "column",
-          gap: 10,
-          background: "#FFFEF2",
-        }}
-      >
-        {messages.map((m, i) => (
-          <div
-            key={i}
-            style={{
-              alignSelf: m.role === "user" ? "flex-end" : "flex-start",
-              maxWidth: "85%",
-              padding: "10px 14px",
-              background: m.role === "user" ? "#000" : "#fff",
-              color: m.role === "user" ? "#fff" : "#000",
-              fontSize: 13,
-              lineHeight: 1.6,
-              fontFamily: "'DM Sans',sans-serif",
-              border: m.role === "user" ? "none" : "2px solid #000",
-            }}
-          >
-            {m.content}
-          </div>
-        ))}
-        {loading && (
-          <div
-            className="sans"
-            style={{ fontSize: 13, color: "#FF2D00", fontWeight: 700 }}
-          >
-            Elaboro...
-          </div>
-        )}
-      </div>
-
-      {/* Suggestion chips */}
-      {suggestions.length > 0 && !finished && (
-        <div style={{
-          padding: "6px 10px 2px",
-          display: "flex",
-          flexWrap: "wrap",
-          gap: 6,
-          borderTop: "2px solid #000",
-          background: "#FFFEF2",
-        }}>
-          {suggestions.map((s, i) => (
-            <button
-              key={i}
-              onClick={() => sendMessage(s)}
-              style={{
-                background: "#fff",
-                border: "2px solid #000",
-                padding: "4px 10px",
-                fontSize: 12,
-                fontFamily: "'DM Sans',sans-serif",
-                fontWeight: 600,
-                cursor: "pointer",
-                color: "#000",
-                transition: "background 0.1s",
-              }}
-              onMouseEnter={(e) => { e.target.style.background = "#FF2D00"; e.target.style.color = "#fff"; }}
-              onMouseLeave={(e) => { e.target.style.background = "#fff"; e.target.style.color = "#000"; }}
-            >
-              {s}
-            </button>
-          ))}
-        </div>
-      )}
-
-      {/* Bottom area */}
-      <div style={{ padding: 10, borderTop: "4px solid #000" }}>
-        {leadSent ? (
-          <div
-            className="sans"
-            style={{
-              textAlign: "center",
-              fontWeight: 700,
-              fontSize: 13,
-              padding: 10,
-              background: "#00FF57",
-              color: "#000",
-            }}
-          >
-            Perfetto! Ti ricontattiamo entro 24 ore.
-          </div>
-        ) : finished ? (
-          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+      {!started ? (
+        /* Pre-start screen */
+        <div
+          style={{
+            flex: 1,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 24,
+            padding: 32,
+            background: "#FFFEF2",
+          }}
+        >
+          <div style={{ textAlign: "center" }}>
             <div
               className="sans"
-              style={{ fontSize: 12, fontWeight: 700, color: "#FF2D00", marginBottom: 2 }}
-            >
-              Lasciaci i tuoi contatti per la proposta:
-            </div>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="La tua email"
-              style={inputStyle}
-            />
-            <div style={{ display: "flex", gap: 0 }}>
-              <input
-                type="tel"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && submitLead()}
-                placeholder="Il tuo numero di telefono"
-                style={{ ...inputStyle, flex: 1 }}
-              />
-              <button
-                onClick={submitLead}
-                disabled={leadLoading || !email.trim() || !phone.trim()}
-                style={{
-                  background: "#FF2D00",
-                  border: "3px solid #000",
-                  borderLeft: "none",
-                  padding: "10px 16px",
-                  color: "#fff",
-                  fontWeight: 900,
-                  cursor: leadLoading || !email.trim() || !phone.trim() ? "not-allowed" : "pointer",
-                  fontSize: 13,
-                  fontFamily: "'DM Sans',sans-serif",
-                  whiteSpace: "nowrap",
-                }}
-              >
-                {leadLoading ? "..." : "Invia"}
-              </button>
-            </div>
-          </div>
-        ) : (
-          <div style={{ display: "flex", gap: 0 }}>
-            <input
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && sendMessage(undefined)}
-              placeholder="Scrivi qui..."
-              style={{ ...inputStyle, flex: 1 }}
-            />
-            <button
-              onClick={() => sendMessage(undefined)}
-              disabled={loading || !input.trim()}
               style={{
-                background: "#000",
-                border: "3px solid #000",
-                borderLeft: "none",
-                padding: "10px 16px",
-                color: "#fff",
-                fontWeight: 900,
-                cursor: loading || !input.trim() ? "not-allowed" : "pointer",
-                fontSize: 16,
-                fontFamily: "'DM Sans',sans-serif",
+                fontSize: 15,
+                fontWeight: 700,
+                color: "#000",
+                lineHeight: 1.5,
+                marginBottom: 8,
               }}
             >
-              &rarr;
-            </button>
+              Descrivi il gestionale che hai in mente.
+            </div>
+            <div
+              className="sans"
+              style={{
+                fontSize: 13,
+                color: "#666",
+                lineHeight: 1.5,
+              }}
+            >
+              Ti guidiamo passo passo per capire cosa ti serve.
+              <br />
+              In 5 minuti avrai una struttura chiara.
+            </div>
           </div>
-        )}
-      </div>
+          <button
+            onClick={startChat}
+            style={{
+              background: "#FF2D00",
+              border: "4px solid #000",
+              padding: "14px 32px",
+              color: "#fff",
+              fontWeight: 900,
+              fontSize: 15,
+              fontFamily: "'DM Sans',sans-serif",
+              cursor: "pointer",
+              boxShadow: "6px 6px 0 #000",
+              transition: "transform 0.1s, box-shadow 0.1s",
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.transform = "translate(3px, 3px)";
+              e.target.style.boxShadow = "3px 3px 0 #000";
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.transform = "translate(0, 0)";
+              e.target.style.boxShadow = "6px 6px 0 #000";
+            }}
+          >
+            Inizia ora &rarr;
+          </button>
+          <div
+            className="sans"
+            style={{ fontSize: 11, color: "#999", fontWeight: 500 }}
+          >
+            Gratuito &middot; Senza impegno &middot; Proposta in 24h
+          </div>
+        </div>
+      ) : (
+        <>
+          {/* Messages */}
+          <div
+            ref={scrollRef}
+            style={{
+              flex: 1,
+              overflowY: "auto",
+              padding: 16,
+              display: "flex",
+              flexDirection: "column",
+              gap: 10,
+              background: "#FFFEF2",
+            }}
+          >
+            {messages.map((m, i) => (
+              <div
+                key={i}
+                style={{
+                  alignSelf: m.role === "user" ? "flex-end" : "flex-start",
+                  maxWidth: "85%",
+                  padding: "10px 14px",
+                  background: m.role === "user" ? "#000" : "#fff",
+                  color: m.role === "user" ? "#fff" : "#000",
+                  fontSize: 13,
+                  lineHeight: 1.6,
+                  fontFamily: "'DM Sans',sans-serif",
+                  border: m.role === "user" ? "none" : "2px solid #000",
+                }}
+              >
+                {m.content}
+              </div>
+            ))}
+            {loading && (
+              <div
+                className="sans"
+                style={{ fontSize: 13, color: "#FF2D00", fontWeight: 700 }}
+              >
+                Elaboro...
+              </div>
+            )}
+          </div>
+
+          {/* Suggestion chips */}
+          {suggestions.length > 0 && !finished && (
+            <div style={{
+              padding: "6px 10px 2px",
+              display: "flex",
+              flexWrap: "wrap",
+              gap: 6,
+              borderTop: "2px solid #000",
+              background: "#FFFEF2",
+            }}>
+              {suggestions.map((s, i) => (
+                <button
+                  key={i}
+                  onClick={() => sendMessage(s)}
+                  style={{
+                    background: "#fff",
+                    border: "2px solid #000",
+                    padding: "4px 10px",
+                    fontSize: 12,
+                    fontFamily: "'DM Sans',sans-serif",
+                    fontWeight: 600,
+                    cursor: "pointer",
+                    color: "#000",
+                    transition: "background 0.1s",
+                  }}
+                  onMouseEnter={(e) => { e.target.style.background = "#FF2D00"; e.target.style.color = "#fff"; }}
+                  onMouseLeave={(e) => { e.target.style.background = "#fff"; e.target.style.color = "#000"; }}
+                >
+                  {s}
+                </button>
+              ))}
+            </div>
+          )}
+
+          {/* Bottom area */}
+          <div style={{ padding: 10, borderTop: "4px solid #000" }}>
+            {leadSent ? (
+              <div
+                className="sans"
+                style={{
+                  textAlign: "center",
+                  fontWeight: 700,
+                  fontSize: 13,
+                  padding: 10,
+                  background: "#00FF57",
+                  color: "#000",
+                }}
+              >
+                Perfetto! Ti ricontattiamo entro 24 ore.
+              </div>
+            ) : finished ? (
+              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                <div
+                  className="sans"
+                  style={{ fontSize: 12, fontWeight: 700, color: "#FF2D00", marginBottom: 2 }}
+                >
+                  Lasciaci i tuoi contatti per la proposta:
+                </div>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="La tua email"
+                  style={inputStyle}
+                />
+                <div style={{ display: "flex", gap: 0 }}>
+                  <input
+                    type="tel"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && submitLead()}
+                    placeholder="Il tuo numero di telefono"
+                    style={{ ...inputStyle, flex: 1 }}
+                  />
+                  <button
+                    onClick={submitLead}
+                    disabled={leadLoading || !email.trim() || !phone.trim()}
+                    style={{
+                      background: "#FF2D00",
+                      border: "3px solid #000",
+                      borderLeft: "none",
+                      padding: "10px 16px",
+                      color: "#fff",
+                      fontWeight: 900,
+                      cursor: leadLoading || !email.trim() || !phone.trim() ? "not-allowed" : "pointer",
+                      fontSize: 13,
+                      fontFamily: "'DM Sans',sans-serif",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {leadLoading ? "..." : "Invia"}
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div style={{ display: "flex", gap: 0 }}>
+                <input
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && sendMessage(undefined)}
+                  placeholder="Scrivi qui..."
+                  style={{ ...inputStyle, flex: 1 }}
+                />
+                <button
+                  onClick={() => sendMessage(undefined)}
+                  disabled={loading || !input.trim()}
+                  style={{
+                    background: "#000",
+                    border: "3px solid #000",
+                    borderLeft: "none",
+                    padding: "10px 16px",
+                    color: "#fff",
+                    fontWeight: 900,
+                    cursor: loading || !input.trim() ? "not-allowed" : "pointer",
+                    fontSize: 16,
+                    fontFamily: "'DM Sans',sans-serif",
+                  }}
+                >
+                  &rarr;
+                </button>
+              </div>
+            )}
+          </div>
+        </>
+      )}
     </div>
   );
 }
