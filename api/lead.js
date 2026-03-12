@@ -18,7 +18,7 @@ async function summarizeWithGrok(messages) {
         {
           role: "system",
           content:
-            "Riassumi questa conversazione commerciale in 3-5 righe in italiano. Evidenzia: tipo di azienda, cosa cercano, budget se menzionato, urgenza. Sii conciso e diretto.",
+            "Riassumi questa conversazione in 3-5 righe in italiano. Evidenzia: tipo di azienda, funzionalità richieste per il gestionale, numero utenti, integrazioni necessarie, budget se menzionato. Sii conciso.",
         },
         { role: "user", content: conversation },
       ],
@@ -33,15 +33,28 @@ async function summarizeWithGrok(messages) {
   }
 }
 
-async function sendTelegram(email, phone, summary, messagesCount) {
+async function sendTelegram(data) {
   if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) return;
 
-  const text =
-    `🔔 <b>NUOVO LEAD</b>\n\n` +
-    `📧 <b>Email:</b> ${email}\n` +
-    `📞 <b>Telefono:</b> ${phone}\n` +
-    `💬 <b>Messaggi:</b> ${messagesCount}\n\n` +
-    `📋 <b>Riassunto progetto:</b>\n${summary || "Riassunto non disponibile"}\n`;
+  let text = `🤖 <b>NUOVO LEAD — LANDINGBOT</b>\n\n`;
+
+  if (data.source === "form") {
+    text +=
+      `📝 <b>Da: Modulo</b>\n\n` +
+      `👤 <b>Nome:</b> ${data.nome || "—"}\n` +
+      `📧 <b>Email:</b> ${data.email}\n` +
+      `📞 <b>Telefono:</b> ${data.telefono}\n` +
+      `🏢 <b>Azienda:</b> ${data.azienda || "—"}\n` +
+      `👥 <b>Utenti stimati:</b> ${data.utenti || "—"}\n\n` +
+      `📋 <b>Funzionalità richieste:</b>\n${data.funzionalita}\n`;
+  } else {
+    text +=
+      `💬 <b>Da: Chat guidata</b>\n\n` +
+      `📧 <b>Email:</b> ${data.email}\n` +
+      `📞 <b>Telefono:</b> ${data.phone}\n` +
+      `💬 <b>Messaggi chat:</b> ${data.messagesCount}\n\n` +
+      `📋 <b>Riassunto conversazione:</b>\n${data.summary || "Non disponibile"}\n`;
+  }
 
   try {
     await fetch(
@@ -66,26 +79,36 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  const { email, phone, messages } = req.body;
-
-  if (!email || !phone) {
-    return res.status(400).json({ error: "Email e telefono obbligatori" });
-  }
+  const body = req.body;
+  const source = body.source || "chat";
 
   // Log strutturato — visibile in Vercel Dashboard > Logs
   console.log(
     JSON.stringify({
       type: "NEW_LEAD",
-      email,
-      phone,
-      messagesCount: messages?.length || 0,
+      source,
+      email: body.email,
+      phone: body.telefono || body.phone,
+      nome: body.nome,
       timestamp: new Date().toISOString(),
     })
   );
 
-  // Genera riassunto con Grok, poi manda su Telegram
-  const summary = await summarizeWithGrok(messages);
-  await sendTelegram(email, phone, summary, messages?.length || 0);
+  if (source === "form") {
+    // Lead da modulo
+    if (!body.email || !body.telefono) {
+      return res.status(400).json({ error: "Email e telefono obbligatori" });
+    }
+    await sendTelegram({ ...body, source: "form" });
+  } else {
+    // Lead da chat
+    const { email, phone, messages } = body;
+    if (!email || !phone) {
+      return res.status(400).json({ error: "Email e telefono obbligatori" });
+    }
+    const summary = await summarizeWithGrok(messages);
+    await sendTelegram({ email, phone, summary, messagesCount: messages?.length || 0, source: "chat" });
+  }
 
   return res.status(200).json({ ok: true });
 }

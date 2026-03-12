@@ -4,7 +4,7 @@ import { createConversation, updateConversation, saveLeadContact } from "../lib/
 const INITIAL_MESSAGE = {
   role: "assistant",
   content:
-    "Ciao! Sono l'assistente di Thinking Studio. Raccontaci il tuo progetto — ti faccio qualche domanda per capire come aiutarti.",
+    "Ciao! Sono l'assistente di Thinking Studio. Dimmi: che tipo di gestionale stai cercando? Cosa deve fare per la tua azienda?",
 };
 
 const inputStyle = {
@@ -27,7 +27,7 @@ function parseSuggestions(text) {
   return { clean, suggestions };
 }
 
-export default function ChatMockup() {
+export default function ChatGuided() {
   const [messages, setMessages] = useState([INITIAL_MESSAGE]);
   const [suggestions, setSuggestions] = useState([]);
   const [input, setInput] = useState("");
@@ -74,7 +74,6 @@ export default function ChatMockup() {
 
       setMessages(withReply);
 
-      // Il form lead appare SOLO quando l'AI dice "ricontatter" — mai prima
       const isDone = clean.includes("ricontatter");
       if (isDone) {
         setFinished(true);
@@ -83,7 +82,6 @@ export default function ChatMockup() {
         setSuggestions(newSuggestions);
       }
 
-      // Firebase in background — non blocca la chat
       (async () => {
         try {
           let currentConvId = convId;
@@ -122,13 +120,13 @@ export default function ChatMockup() {
           email: email.trim(),
           phone: phone.trim(),
           messages: messages.map((m) => ({ role: m.role, content: m.content })),
+          source: "chat",
         }),
       });
 
-      // Salva email + telefono su Firebase
       await saveLeadContact(convId, email.trim(), phone.trim());
     } catch {
-      // Il lead è già loggato server-side, non blocchiamo l'UX
+      // Lead già loggato server-side
     }
 
     setLeadSent(true);
@@ -139,12 +137,11 @@ export default function ChatMockup() {
     <div
       style={{
         width: "100%",
-        maxWidth: 420,
         border: "4px solid #000",
         background: "#fff",
         display: "flex",
         flexDirection: "column",
-        height: 460,
+        height: 480,
         position: "relative",
         boxShadow: "12px 12px 0 #000",
       }}
@@ -180,7 +177,7 @@ export default function ChatMockup() {
               display: "inline-block",
             }}
           />
-          Parlaci del tuo progetto
+          Struttura il tuo gestionale
         </span>
         <span
           className="sans"
@@ -226,7 +223,7 @@ export default function ChatMockup() {
             className="sans"
             style={{ fontSize: 13, color: "#FF2D00", fontWeight: 700 }}
           >
-            Sto elaborando...
+            Elaboro...
           </div>
         )}
       </div>
@@ -268,7 +265,6 @@ export default function ChatMockup() {
       {/* Bottom area */}
       <div style={{ padding: 10, borderTop: "4px solid #000" }}>
         {leadSent ? (
-          /* Conferma finale */
           <div
             className="sans"
             style={{
@@ -283,13 +279,12 @@ export default function ChatMockup() {
             Perfetto! Ti ricontattiamo entro 24 ore.
           </div>
         ) : finished ? (
-          /* Form raccolta contatti */
           <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
             <div
               className="sans"
               style={{ fontSize: 12, fontWeight: 700, color: "#FF2D00", marginBottom: 2 }}
             >
-              Lasciaci i tuoi contatti per essere richiamato:
+              Lasciaci i tuoi contatti per la proposta:
             </div>
             <input
               type="email"
@@ -317,10 +312,7 @@ export default function ChatMockup() {
                   padding: "10px 16px",
                   color: "#fff",
                   fontWeight: 900,
-                  cursor:
-                    leadLoading || !email.trim() || !phone.trim()
-                      ? "not-allowed"
-                      : "pointer",
+                  cursor: leadLoading || !email.trim() || !phone.trim() ? "not-allowed" : "pointer",
                   fontSize: 13,
                   fontFamily: "'DM Sans',sans-serif",
                   whiteSpace: "nowrap",
@@ -331,7 +323,6 @@ export default function ChatMockup() {
             </div>
           </div>
         ) : (
-          /* Input chat normale */
           <div style={{ display: "flex", gap: 0 }}>
             <input
               value={input}
@@ -341,7 +332,7 @@ export default function ChatMockup() {
               style={{ ...inputStyle, flex: 1 }}
             />
             <button
-              onClick={sendMessage}
+              onClick={() => sendMessage(undefined)}
               disabled={loading || !input.trim()}
               style={{
                 background: "#000",
